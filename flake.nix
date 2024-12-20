@@ -6,11 +6,11 @@
     nixpkgsveryold.url = "github:nixos/nixpkgs?ref=nixos-21.11";
   };
 
-  outputs = { self, nixpkgs, nixpkgsveryold }: 
+  outputs = { nixpkgs, ... }@input: 
 
   let
     pkgs = nixpkgs.legacyPackages;
-    pkgsold = nixpkgsveryold.legacyPackages;
+    pkgsold = input.nixpkgsveryold.legacyPackages;
   in {
     # Define packages
     packages = {
