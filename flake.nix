@@ -5,20 +5,36 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
   };
 
-  outputs = { self, nixpkgs, nixpkgsveryold }: 
+  outputs = { self, nixpkgs }: 
   let
-    pkgs = nixpkgs.legacyPackages.x86_64-linux;
-    pkgsold = nixpkgsveryold.legacyPackages.x86_64-linux;
-  in 
-  {
+    pkgs = nixpkgs.legacyPackages;
+  in {
+    # Define packages
+    packages = {
+      x86_64-linux = pkgs.x86_64-linux.hello;
+      aarch64-darwin = pkgs.aarch64-darwin.hello;
+    };
 
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+    # Default package for 'nix run'
+    defaultPackage = {
+      x86_64-linux = self.packages.x86_64-linux;
+      aarch64-darwin = self.packages.aarch64-darwin;
+    };
 
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+    # Development shells
+    devShells = {
+      x86_64-linux = pkgs.x86_64-linux.mkShell {
+        buildInputs = [ pkgs.x86_64-linux.hello ];
+      };
+      aarch64-darwin = pkgs.aarch64-darwin.mkShell {
+        buildInputs = [ pkgs.aarch64-darwin.hello ];
+      };
+    };
 
-    devShells.x86_64-linux.default = pkgs.mkShell {
-    	buildInputs = [pkgs.nvim pkgsold.vim];
+    # Define apps
+    apps = {
+      x86_64-linux = { type = "app"; program = "${self.packages.x86_64-linux}/bin/hello"; };
+      aarch64-darwin = { type = "app"; program = "${self.packages.aarch64-darwin}/bin/hello"; };
     };
   };
-
 }
