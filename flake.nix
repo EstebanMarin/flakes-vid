@@ -3,11 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgsveryold.url = "github:nixos/nixpkgs?ref=nixos-21.11";
   };
 
-  outputs = { self, nixpkgs }: 
+  outputs = { self, nixpkgs, nixpkgsveryold }: 
   let
     pkgs = nixpkgs.legacyPackages;
+    pkgsold = nixpkgsveryold.legacyPackages;
   in {
     # Define packages
     packages = {
@@ -27,14 +29,8 @@
         buildInputs = [ pkgs.x86_64-linux.hello ];
       };
       aarch64-darwin = pkgs.aarch64-darwin.mkShell {
-        buildInputs = [ pkgs.aarch64-darwin.hello ];
+        buildInputs = [ pkgs.neovim pkgsold.vim];
       };
-    };
-
-    # Define apps
-    apps = {
-      x86_64-linux = { type = "app"; program = "${self.packages.x86_64-linux}/bin/hello"; };
-      aarch64-darwin = { type = "app"; program = "${self.packages.aarch64-darwin}/bin/hello"; };
     };
   };
 }
